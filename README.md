@@ -7,3 +7,4 @@ An App to guess countries and capitals and to show all countries and capitals of
 3. Country and capital list (sort by country or capital)
 4. Mistake counter
 5. Dark-Mode
+6. Languages: English, German
