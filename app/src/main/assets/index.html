@@ -225,7 +225,24 @@
 <body>
   <div class="container">
     <header>
-      <div style="margin-left: auto; display: flex; gap: 10px;">
+      <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
+        <div class="language-selector">
+          <div class="selected-language" onclick="toggleLanguageDropdown()">
+            <img src="https://flagcdn.com/w20/gb.png" id="current-lang-flag" alt="Current language">
+            <span id="current-lang-text">EN</span>
+            <span class="dropdown-arrow">▼</span>
+          </div>
+          <div class="language-dropdown" id="language-dropdown">
+            <div class="language-option" onclick="selectLanguage('en')">
+              <img src="https://flagcdn.com/w20/gb.png" alt="English">
+              <span>English</span>
+            </div>
+            <div class="language-option" onclick="selectLanguage('de')">
+              <img src="https://flagcdn.com/w20/de.png" alt="Deutsch">
+              <span>Deutsch</span>
+            </div>
+          </div>
+        </div>
         <button class="mode-toggle" onclick="showHomeScreen()"><img
                 src="home.png" height="30" width="30"/></button>
         <button class="mode-toggle" onclick="toggleMode()"><img src="night-mode.png" height="30"
@@ -255,17 +272,28 @@
 
     <div id="all-countries-screen">
       <h2>All Countries</h2>
-      <select id="sort-select" onchange="sortCountries()">
-        <option value="name">Sort by Country</option>
-        <option value="capital">Sort by Capital</option>
-      </select>
+      <div class="sort-selector">
+        <div class="selected-sort" onclick="toggleSortDropdown()">
+          <span id="current-sort-text">Sort by Country</span>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+        <div class="sort-dropdown" id="sort-dropdown">
+          <div class="sort-option" onclick="selectSortOption('name')">
+            <span id="sort-by-country">Sort by Country</span>
+          </div>
+          <div class="sort-option" onclick="selectSortOption('capital')">
+            <span id="sort-by-capital">Sort by Capital</span>
+          </div>
+        </div>
+      </div>
       <ul id="countries-list"></ul>
     </div>
   </div>
 
   <script>
 const countries = [
-    { name: "Afghanistan", flag: "https://flagcdn.com/w320/af.png", capital: "Kabul" },
+
+{ name: "Afghanistan", flag: "https://flagcdn.com/w320/af.png", capital: "Kabul" },
     { name: "Albania", flag: "https://flagcdn.com/w320/al.png", capital: "Tirana" },
     { name: "Algeria", flag: "https://flagcdn.com/w320/dz.png", capital: "Algiers" },
     { name: "Andorra", flag: "https://flagcdn.com/w320/ad.png", capital: "Andorra la Vella" },
@@ -460,13 +488,294 @@ const countries = [
     { name: "Zambia", flag: "https://flagcdn.com/w320/zm.png", capital: "Lusaka" },
     { name: "Zimbabwe", flag: "https://flagcdn.com/w320/zw.png", capital: "Harare" }
 
-
     ];
 
+    // Add this after the countries array
+    
+    // Translations for country names and capitals
+    const translations = {
+      en: {
+        guessCountries: "Guess Countries",
+        guessCapitals: "Guess Capitals",
+        countryList: "Country List",
+        correct: "Correct!",
+        wrong: "Wrong!",
+        mistakes: "Mistakes",
+        allCountries: "All Countries",
+        sortByCountry: "Sort by Country",
+        sortByCapital: "Sort by Capital",
+        country: "Country",
+        capital: "Capital"
+      },
+      de: {
+        guessCountries: "Länder raten",
+        guessCapitals: "Hauptstädte raten",
+        countryList: "Länderliste",
+        correct: "Richtig!",
+        wrong: "Falsch!",
+        mistakes: "Fehler",
+        allCountries: "Alle Länder",
+        sortByCountry: "Nach Land sortieren",
+        sortByCapital: "Nach Hauptstadt sortieren",
+        country: "Land",
+        capital: "Hauptstadt"
+      }
+    };
+    
+    // Deutsche Übersetzungen als separate Tabelle
+    const countriesDE = [
+    { name: "Afghanistan", flag: "https://flagcdn.com/w320/af.png", capital: "Kabul" },
+    { name: "Ägypten", flag: "https://flagcdn.com/w320/eg.png", capital: "Kairo" },
+    { name: "Albanien", flag: "https://flagcdn.com/w320/al.png", capital: "Tirana" },
+    { name: "Algerien", flag: "https://flagcdn.com/w320/dz.png", capital: "Algier" },
+    { name: "Andorra", flag: "https://flagcdn.com/w320/ad.png", capital: "Andorra la Vella" },
+    { name: "Angola", flag: "https://flagcdn.com/w320/ao.png", capital: "Luanda" },
+    { name: "Antigua und Barbuda", flag: "https://flagcdn.com/w320/ag.png", capital: "Saint John's" },
+    { name: "Äquatorialguinea", flag: "https://flagcdn.com/w320/gq.png", capital: "Malabo" },
+    { name: "Argentinien", flag: "https://flagcdn.com/w320/ar.png", capital: "Buenos Aires" },
+    { name: "Armenien", flag: "https://flagcdn.com/w320/am.png", capital: "Jerewan" },
+    { name: "Aserbaidschan", flag: "https://flagcdn.com/w320/az.png", capital: "Baku" },
+    { name: "Äthiopien", flag: "https://flagcdn.com/w320/et.png", capital: "Addis Abeba" },
+    { name: "Australien", flag: "https://flagcdn.com/w320/au.png", capital: "Canberra" },
+    { name: "Bahamas", flag: "https://flagcdn.com/w320/bs.png", capital: "Nassau" },
+    { name: "Bahrain", flag: "https://flagcdn.com/w320/bh.png", capital: "Manama" },
+    { name: "Bangladesch", flag: "https://flagcdn.com/w320/bd.png", capital: "Dhaka" },
+    { name: "Barbados", flag: "https://flagcdn.com/w320/bb.png", capital: "Bridgetown" },
+    { name: "Belgien", flag: "https://flagcdn.com/w320/be.png", capital: "Brüssel" },
+    { name: "Belize", flag: "https://flagcdn.com/w320/bz.png", capital: "Belmopan" },
+    { name: "Benin", flag: "https://flagcdn.com/w320/bj.png", capital: "Porto-Novo" },
+    { name: "Bhutan", flag: "https://flagcdn.com/w320/bt.png", capital: "Thimphu" },
+    { name: "Bolivien", flag: "https://flagcdn.com/w320/bo.png", capital: "Sucre" },
+    { name: "Bosnien und Herzegowina", flag: "https://flagcdn.com/w320/ba.png", capital: "Sarajevo" },
+    { name: "Botsuana", flag: "https://flagcdn.com/w320/bw.png", capital: "Gaborone" },
+    { name: "Brasilien", flag: "https://flagcdn.com/w320/br.png", capital: "Brasília" },
+    { name: "Brunei", flag: "https://flagcdn.com/w320/bn.png", capital: "Bandar Seri Begawan" },
+    { name: "Bulgarien", flag: "https://flagcdn.com/w320/bg.png", capital: "Sofia" },
+    { name: "Burkina Faso", flag: "https://flagcdn.com/w320/bf.png", capital: "Ouagadougou" },
+    { name: "Burundi", flag: "https://flagcdn.com/w320/bi.png", capital: "Gitega" },
+    { name: "Chile", flag: "https://flagcdn.com/w320/cl.png", capital: "Santiago" },
+    { name: "China", flag: "https://flagcdn.com/w320/cn.png", capital: "Peking" },
+    { name: "Costa Rica", flag: "https://flagcdn.com/w320/cr.png", capital: "San José" },
+    { name: "Dänemark", flag: "https://flagcdn.com/w320/dk.png", capital: "Kopenhagen" },
+    { name: "Deutschland", flag: "https://flagcdn.com/w320/de.png", capital: "Berlin" },
+    { name: "Dschibuti", flag: "https://flagcdn.com/w320/dj.png", capital: "Dschibuti" },
+    { name: "Dominica", flag: "https://flagcdn.com/w320/dm.png", capital: "Roseau" },
+    { name: "Dominikanische Republik", flag: "https://flagcdn.com/w320/do.png", capital: "Santo Domingo" },
+    { name: "Ecuador", flag: "https://flagcdn.com/w320/ec.png", capital: "Quito" },
+    { name: "El Salvador", flag: "https://flagcdn.com/w320/sv.png", capital: "San Salvador" },
+    { name: "Elfenbeinküste", flag: "https://flagcdn.com/w320/ci.png", capital: "Yamoussoukro" },
+    { name: "Eritrea", flag: "https://flagcdn.com/w320/er.png", capital: "Asmara" },
+    { name: "Estland", flag: "https://flagcdn.com/w320/ee.png", capital: "Tallinn" },
+    { name: "Eswatini", flag: "https://flagcdn.com/w320/sz.png", capital: "Mbabane" },
+    { name: "Fidschi", flag: "https://flagcdn.com/w320/fj.png", capital: "Suva" },
+    { name: "Finnland", flag: "https://flagcdn.com/w320/fi.png", capital: "Helsinki" },
+    { name: "Frankreich", flag: "https://flagcdn.com/w320/fr.png", capital: "Paris" },
+    { name: "Gabun", flag: "https://flagcdn.com/w320/ga.png", capital: "Libreville" },
+    { name: "Gambia", flag: "https://flagcdn.com/w320/gm.png", capital: "Banjul" },
+    { name: "Georgien", flag: "https://flagcdn.com/w320/ge.png", capital: "Tiflis" },
+    { name: "Ghana", flag: "https://flagcdn.com/w320/gh.png", capital: "Accra" },
+    { name: "Grenada", flag: "https://flagcdn.com/w320/gd.png", capital: "St. George's" },
+    { name: "Griechenland", flag: "https://flagcdn.com/w320/gr.png", capital: "Athen" },
+    { name: "Guatemala", flag: "https://flagcdn.com/w320/gt.png", capital: "Guatemala-Stadt" },
+    { name: "Guinea", flag: "https://flagcdn.com/w320/gn.png", capital: "Conakry" },
+    { name: "Guinea-Bissau", flag: "https://flagcdn.com/w320/gw.png", capital: "Bissau" },
+    { name: "Guyana", flag: "https://flagcdn.com/w320/gy.png", capital: "Georgetown" },
+    { name: "Haiti", flag: "https://flagcdn.com/w320/ht.png", capital: "Port-au-Prince" },
+    { name: "Honduras", flag: "https://flagcdn.com/w320/hn.png", capital: "Tegucigalpa" },
+    { name: "Indien", flag: "https://flagcdn.com/w320/in.png", capital: "Neu-Delhi" },
+    { name: "Indonesien", flag: "https://flagcdn.com/w320/id.png", capital: "Jakarta" },
+    { name: "Irak", flag: "https://flagcdn.com/w320/iq.png", capital: "Bagdad" },
+    { name: "Iran", flag: "https://flagcdn.com/w320/ir.png", capital: "Teheran" },
+    { name: "Irland", flag: "https://flagcdn.com/w320/ie.png", capital: "Dublin" },
+    { name: "Island", flag: "https://flagcdn.com/w320/is.png", capital: "Reykjavík" },
+    { name: "Israel", flag: "https://flagcdn.com/w320/il.png", capital: "Jerusalem" },
+    { name: "Italien", flag: "https://flagcdn.com/w320/it.png", capital: "Rom" },
+    { name: "Jamaika", flag: "https://flagcdn.com/w320/jm.png", capital: "Kingston" },
+    { name: "Japan", flag: "https://flagcdn.com/w320/jp.png", capital: "Tokio" },
+    { name: "Jemen", flag: "https://flagcdn.com/w320/ye.png", capital: "Sanaa" },
+    { name: "Jordanien", flag: "https://flagcdn.com/w320/jo.png", capital: "Amman" },
+    { name: "Kambodscha", flag: "https://flagcdn.com/w320/kh.png", capital: "Phnom Penh" },
+    { name: "Kamerun", flag: "https://flagcdn.com/w320/cm.png", capital: "Yaoundé" },
+    { name: "Kanada", flag: "https://flagcdn.com/w320/ca.png", capital: "Ottawa" },
+    { name: "Kap Verde", flag: "https://flagcdn.com/w320/cv.png", capital: "Praia" },
+    { name: "Kasachstan", flag: "https://flagcdn.com/w320/kz.png", capital: "Nur-Sultan" },
+    { name: "Katar", flag: "https://flagcdn.com/w320/qa.png", capital: "Doha" },
+    { name: "Kenia", flag: "https://flagcdn.com/w320/ke.png", capital: "Nairobi" },
+    { name: "Kirgisistan", flag: "https://flagcdn.com/w320/kg.png", capital: "Bischkek" },
+    { name: "Kiribati", flag: "https://flagcdn.com/w320/ki.png", capital: "South Tarawa" },
+    { name: "Kolumbien", flag: "https://flagcdn.com/w320/co.png", capital: "Bogotá" },
+    { name: "Komoren", flag: "https://flagcdn.com/w320/km.png", capital: "Moroni" },
+    { name: "Kongo", flag: "https://flagcdn.com/w320/cd.png", capital: "Kinshasa" },
+    { name: "Kongo, Republik", flag: "https://flagcdn.com/w320/cg.png", capital: "Brazzaville" },
+    { name: "Kosovo", flag: "https://flagcdn.com/w320/xk.png", capital: "Pristina" },
+    { name: "Kroatien", flag: "https://flagcdn.com/w320/hr.png", capital: "Zagreb" },
+    { name: "Kuba", flag: "https://flagcdn.com/w320/cu.png", capital: "Havanna" },
+    { name: "Kuwait", flag: "https://flagcdn.com/w320/kw.png", capital: "Kuwait-Stadt" },
+    { name: "Laos", flag: "https://flagcdn.com/w320/la.png", capital: "Vientiane" },
+    { name: "Lesotho", flag: "https://flagcdn.com/w320/ls.png", capital: "Maseru" },
+    { name: "Lettland", flag: "https://flagcdn.com/w320/lv.png", capital: "Riga" },
+    { name: "Libanon", flag: "https://flagcdn.com/w320/lb.png", capital: "Beirut" },
+    { name: "Liberia", flag: "https://flagcdn.com/w320/lr.png", capital: "Monrovia" },
+    { name: "Libyen", flag: "https://flagcdn.com/w320/ly.png", capital: "Tripolis" },
+    { name: "Liechtenstein", flag: "https://flagcdn.com/w320/li.png", capital: "Vaduz" },
+    { name: "Litauen", flag: "https://flagcdn.com/w320/lt.png", capital: "Vilnius" },
+    { name: "Luxemburg", flag: "https://flagcdn.com/w320/lu.png", capital: "Luxemburg-Stadt" },
+    { name: "Madagaskar", flag: "https://flagcdn.com/w320/mg.png", capital: "Antananarivo" },
+    { name: "Malawi", flag: "https://flagcdn.com/w320/mw.png", capital: "Lilongwe" },
+    { name: "Malaysia", flag: "https://flagcdn.com/w320/my.png", capital: "Kuala Lumpur" },
+    { name: "Malediven", flag: "https://flagcdn.com/w320/mv.png", capital: "Malé" },
+    { name: "Mali", flag: "https://flagcdn.com/w320/ml.png", capital: "Bamako" },
+    { name: "Malta", flag: "https://flagcdn.com/w320/mt.png", capital: "Valletta" },
+    { name: "Marokko", flag: "https://flagcdn.com/w320/ma.png", capital: "Rabat" },
+    { name: "Marshallinseln", flag: "https://flagcdn.com/w320/mh.png", capital: "Majuro" },
+    { name: "Mauretanien", flag: "https://flagcdn.com/w320/mr.png", capital: "Nouakchott" },
+    { name: "Mauritius", flag: "https://flagcdn.com/w320/mu.png", capital: "Port Louis" },
+    { name: "Mexiko", flag: "https://flagcdn.com/w320/mx.png", capital: "Mexiko-Stadt" },
+    { name: "Mikronesien", flag: "https://flagcdn.com/w320/fm.png", capital: "Palikir" },
+    { name: "Moldau", flag: "https://flagcdn.com/w320/md.png", capital: "Chișinău" },
+    { name: "Monaco", flag: "https://flagcdn.com/w320/mc.png", capital: "Monaco" },
+    { name: "Mongolei", flag: "https://flagcdn.com/w320/mn.png", capital: "Ulaanbaatar" },
+    { name: "Montenegro", flag: "https://flagcdn.com/w320/me.png", capital: "Podgorica" },
+    { name: "Mosambik", flag: "https://flagcdn.com/w320/mz.png", capital: "Maputo" },
+    { name: "Myanmar", flag: "https://flagcdn.com/w320/mm.png", capital: "Naypyidaw" },
+    { name: "Namibia", flag: "https://flagcdn.com/w320/na.png", capital: "Windhoek" },
+    { name: "Nauru", flag: "https://flagcdn.com/w320/nr.png", capital: "Yaren" },
+    { name: "Nepal", flag: "https://flagcdn.com/w320/np.png", capital: "Kathmandu" },
+    { name: "Neuseeland", flag: "https://flagcdn.com/w320/nz.png", capital: "Wellington" },
+    { name: "Nicaragua", flag: "https://flagcdn.com/w320/ni.png", capital: "Managua" },
+    { name: "Niederlande", flag: "https://flagcdn.com/w320/nl.png", capital: "Amsterdam" },
+    { name: "Niger", flag: "https://flagcdn.com/w320/ne.png", capital: "Niamey" },
+    { name: "Nigeria", flag: "https://flagcdn.com/w320/ng.png", capital: "Abuja" },
+    { name: "Nordmazedonien", flag: "https://flagcdn.com/w320/mk.png", capital: "Skopje" },
+    { name: "Norwegen", flag: "https://flagcdn.com/w320/no.png", capital: "Oslo" },
+    { name: "Oman", flag: "https://flagcdn.com/w320/om.png", capital: "Maskat" },
+    { name: "Österreich", flag: "https://flagcdn.com/w320/at.png", capital: "Wien" },
+    { name: "Osttimor", flag: "https://flagcdn.com/w320/tl.png", capital: "Dili" },
+    { name: "Pakistan", flag: "https://flagcdn.com/w320/pk.png", capital: "Islamabad" },
+    { name: "Palau", flag: "https://flagcdn.com/w320/pw.png", capital: "Ngerulmud" },
+    { name: "Palästina", flag: "https://flagcdn.com/w320/ps.png", capital: "Jerusalem" },
+    { name: "Panama", flag: "https://flagcdn.com/w320/pa.png", capital: "Panama-Stadt" },
+    { name: "Papua-Neuguinea", flag: "https://flagcdn.com/w320/pg.png", capital: "Port Moresby" },
+    { name: "Paraguay", flag: "https://flagcdn.com/w320/py.png", capital: "Asunción" },
+    { name: "Peru", flag: "https://flagcdn.com/w320/pe.png", capital: "Lima" },
+    { name: "Philippinen", flag: "https://flagcdn.com/w320/ph.png", capital: "Manila" },
+    { name: "Polen", flag: "https://flagcdn.com/w320/pl.png", capital: "Warschau" },
+    { name: "Portugal", flag: "https://flagcdn.com/w320/pt.png", capital: "Lissabon" },
+    { name: "Ruanda", flag: "https://flagcdn.com/w320/rw.png", capital: "Kigali" },
+    { name: "Rumänien", flag: "https://flagcdn.com/w320/ro.png", capital: "Bukarest" },
+    { name: "Russland", flag: "https://flagcdn.com/w320/ru.png", capital: "Moskau" },
+    { name: "Salomonen", flag: "https://flagcdn.com/w320/sb.png", capital: "Honiara" },
+    { name: "Sambia", flag: "https://flagcdn.com/w320/zm.png", capital: "Lusaka" },
+    { name: "Samoa", flag: "https://flagcdn.com/w320/ws.png", capital: "Apia" },
+    { name: "San Marino", flag: "https://flagcdn.com/w320/sm.png", capital: "San Marino" },
+    { name: "São Tomé und Príncipe", flag: "https://flagcdn.com/w320/st.png", capital: "São Tomé" },
+    { name: "Saudi-Arabien", flag: "https://flagcdn.com/w320/sa.png", capital: "Riad" },
+    { name: "Schweden", flag: "https://flagcdn.com/w320/se.png", capital: "Stockholm" },
+    { name: "Schweiz", flag: "https://flagcdn.com/w320/ch.png", capital: "Bern" },
+    { name: "Senegal", flag: "https://flagcdn.com/w320/sn.png", capital: "Dakar" },
+    { name: "Serbien", flag: "https://flagcdn.com/w320/rs.png", capital: "Belgrad" },
+    { name: "Seychellen", flag: "https://flagcdn.com/w320/sc.png", capital: "Victoria" },
+    { name: "Sierra Leone", flag: "https://flagcdn.com/w320/sl.png", capital: "Freetown" },
+    { name: "Simbabwe", flag: "https://flagcdn.com/w320/zw.png", capital: "Harare" },
+    { name: "Singapur", flag: "https://flagcdn.com/w320/sg.png", capital: "Singapur" },
+    { name: "Slowakei", flag: "https://flagcdn.com/w320/sk.png", capital: "Bratislava" },
+    { name: "Slowenien", flag: "https://flagcdn.com/w320/si.png", capital: "Ljubljana" },
+    { name: "Somalia", flag: "https://flagcdn.com/w320/so.png", capital: "Mogadischu" },
+    { name: "Spanien", flag: "https://flagcdn.com/w320/es.png", capital: "Madrid" },
+    { name: "Sri Lanka", flag: "https://flagcdn.com/w320/lk.png", capital: "Colombo" },
+    { name: "St. Kitts und Nevis", flag: "https://flagcdn.com/w320/kn.png", capital: "Basseterre" },
+    { name: "St. Lucia", flag: "https://flagcdn.com/w320/lc.png", capital: "Castries" },
+    { name: "St. Vincent und die Grenadinen", flag: "https://flagcdn.com/w320/vc.png", capital: "Kingstown" },
+    { name: "Südafrika", flag: "https://flagcdn.com/w320/za.png", capital: "Pretoria" },
+    { name: "Sudan", flag: "https://flagcdn.com/w320/sd.png", capital: "Khartum" },
+    { name: "Südsudan", flag: "https://flagcdn.com/w320/ss.png", capital: "Juba" },
+    { name: "Suriname", flag: "https://flagcdn.com/w320/sr.png", capital: "Paramaribo" },
+    { name: "Syrien", flag: "https://flagcdn.com/w320/sy.png", capital: "Damaskus" },
+    { name: "Tadschikistan", flag: "https://flagcdn.com/w320/tj.png", capital: "Duschanbe" },
+    { name: "Taiwan", flag: "https://flagcdn.com/w320/tw.png", capital: "Taipeh" },
+    { name: "Tansania", flag: "https://flagcdn.com/w320/tz.png", capital: "Dodoma" },
+    { name: "Thailand", flag: "https://flagcdn.com/w320/th.png", capital: "Bangkok" },
+    { name: "Togo", flag: "https://flagcdn.com/w320/tg.png", capital: "Lomé" },
+    { name: "Tonga", flag: "https://flagcdn.com/w320/to.png", capital: "Nukuʻalofa" },
+    { name: "Trinidad und Tobago", flag: "https://flagcdn.com/w320/tt.png", capital: "Port of Spain" },
+    { name: "Tschad", flag: "https://flagcdn.com/w320/td.png", capital: "N'Djamena" },
+    { name: "Tschechische Republik", flag: "https://flagcdn.com/w320/cz.png", capital: "Prag" },
+    { name: "Tunesien", flag: "https://flagcdn.com/w320/tn.png", capital: "Tunis" },
+    { name: "Türkei", flag: "https://flagcdn.com/w320/tr.png", capital: "Ankara" },
+    { name: "Turkmenistan", flag: "https://flagcdn.com/w320/tm.png", capital: "Aschgabat" },
+    { name: "Tuvalu", flag: "https://flagcdn.com/w320/tv.png", capital: "Funafuti" },
+    { name: "Uganda", flag: "https://flagcdn.com/w320/ug.png", capital: "Kampala" },
+    { name: "Ukraine", flag: "https://flagcdn.com/w320/ua.png", capital: "Kiew" },
+    { name: "Ungarn", flag: "https://flagcdn.com/w320/hu.png", capital: "Budapest" },
+    { name: "Uruguay", flag: "https://flagcdn.com/w320/uy.png", capital: "Montevideo" },
+    { name: "Usbekistan", flag: "https://flagcdn.com/w320/uz.png", capital: "Taschkent" },
+    { name: "Vanuatu", flag: "https://flagcdn.com/w320/vu.png", capital: "Port Vila" },
+    { name: "Vatikanstadt", flag: "https://flagcdn.com/w320/va.png", capital: "Vatikanstadt" },
+    { name: "Venezuela", flag: "https://flagcdn.com/w320/ve.png", capital: "Caracas" },
+    { name: "Vereinigte Arabische Emirate", flag: "https://flagcdn.com/w320/ae.png", capital: "Abu Dhabi" },
+    { name: "Vereinigte Staaten", flag: "https://flagcdn.com/w320/us.png", capital: "Washington, D.C." },
+    { name: "Vereinigtes Königreich", flag: "https://flagcdn.com/w320/gb.png", capital: "London" },
+    { name: "Vietnam", flag: "https://flagcdn.com/w320/vn.png", capital: "Hanoi" },
+    { name: "Weißrussland", flag: "https://flagcdn.com/w320/by.png", capital: "Minsk" },
+    { name: "Zentralafrikanische Republik", flag: "https://flagcdn.com/w320/cf.png", capital: "Bangui" },
+    { name: "Zypern", flag: "https://flagcdn.com/w320/cy.png", capital: "Nikosia" }
+    ];
+
+    let currentLanguage = "en";
     let currentGameMode = "";
     let currentData = {};
     let usedCountries = [];
+    let countryErrors = 0;
+    let capitalErrors = 0;
 
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      updateUIText();
+      
+      // If in game mode, refresh the current question
+      if (currentGameMode === 'countries') {
+        setNewCountry();
+      } else if (currentGameMode === 'capitals') {
+        setNewCapital();
+      }
+      
+      // If in country list view, refresh the list
+      if (document.getElementById('all-countries-screen').style.display === 'block') {
+        displayCountries();
+      }
+    }
+    
+    function updateUIText() {
+      // Update buttons text
+      document.querySelector('.mode-button:nth-child(1)').textContent = translations[currentLanguage].guessCountries;
+      document.querySelector('.mode-button:nth-child(2)').textContent = translations[currentLanguage].guessCapitals;
+      document.querySelector('.mode-button:nth-child(3)').textContent = translations[currentLanguage].countryList;
+      
+      // Update other UI elements
+      document.querySelector('#all-countries-screen h2').textContent = translations[currentLanguage].allCountries;
+      
+      // Update sort dropdown texts
+      document.getElementById('current-sort-text').textContent = translations[currentLanguage].sortByCountry;
+      document.getElementById('sort-by-country').textContent = translations[currentLanguage].sortByCountry;
+      document.getElementById('sort-by-capital').textContent = translations[currentLanguage].sortByCapital;
+      
+      document.querySelector('#error-counter').innerHTML = `${translations[currentLanguage].mistakes}: <span id="error-count">${currentGameMode === 'countries' ? countryErrors : capitalErrors}</span>`;
+    }
+    
+    // Funktion zum Abrufen der Länderdaten basierend auf der aktuellen Sprache
+    function getCountriesData() {
+      return currentLanguage === "de" ? countriesDE : countries;
+    }
+    
+    // Funktion zum Finden eines Landes in der deutschen Tabelle anhand des englischen Namens
+    function findCountryByEnglishName(englishName) {
+      if (currentLanguage === "en") return null;
+      return countriesDE.find(country => {
+        const englishCountry = countries.find(c => c.name === englishName);
+        return englishCountry && country.englishName === englishName;
+      });
+    }
+    
     function toggleMenu() {
       const menu = document.getElementById('menu');
       menu.classList.toggle('open');
@@ -499,18 +808,31 @@ const countries = [
     }
 
     function getRandomData(dataArray) {
-      let availableCountries = dataArray.filter(country => !usedCountries.includes(country.name));
+      // Verwende die richtige Tabelle basierend auf der Sprache
+      const currentCountries = getCountriesData();
+      
+      let availableCountries = currentCountries.filter(country => {
+        // Bei deutscher Sprache müssen wir den englischen Namen für den Vergleich verwenden
+        const nameToCheck = currentLanguage === "de" ? country.englishName : country.name;
+        return !usedCountries.includes(nameToCheck);
+      });
+      
       if (availableCountries.length === 0) {
         usedCountries = [];
-        availableCountries = dataArray;
+        availableCountries = currentCountries;
       }
+      
       let randomCountry = availableCountries[Math.floor(Math.random() * availableCountries.length)];
-      usedCountries.push(randomCountry.name);
+      
+      // Speichere den englischen Namen für die Verfolgung
+      const nameToTrack = currentLanguage === "de" ? randomCountry.englishName : randomCountry.name;
+      usedCountries.push(nameToTrack);
+      
       return randomCountry;
     }
 
     function setNewCountry() {
-      currentData = getRandomData(countries);
+      currentData = getRandomData(getCountriesData());
       document.getElementById('flag').src = currentData.flag;
 
       let options = document.querySelectorAll('.option');
@@ -522,7 +844,7 @@ const countries = [
         } else {
           let randomCountry;
           do {
-            randomCountry = getRandomData(countries);
+            randomCountry = getRandomData(getCountriesData());
           } while (randomCountry.name === currentData.name);
           option.textContent = randomCountry.name;
           option.dataset.correct = "false";
@@ -534,9 +856,9 @@ const countries = [
     }
 
     function setNewCapital() {
-      currentData = getRandomData(countries);
+      currentData = getRandomData(getCountriesData());
       document.getElementById('flag').src = currentData.flag;
-      document.getElementById('info').textContent = `Country: ${currentData.name}`;
+      document.getElementById('info').textContent = `${translations[currentLanguage].country}: ${currentData.name}`;
 
       let options = document.querySelectorAll('.option');
       let correctOption = Math.floor(Math.random() * options.length);
@@ -547,7 +869,7 @@ const countries = [
         } else {
           let randomCountry;
           do {
-            randomCountry = getRandomData(countries);
+            randomCountry = getRandomData(getCountriesData());
           } while (randomCountry.capital === currentData.capital);
           option.textContent = randomCountry.capital;
           option.dataset.correct = "false";
@@ -568,9 +890,9 @@ const countries = [
       });
 
       if (selectedOption.dataset.correct === "true") {
-        document.getElementById('result').textContent = "Correct!";
+        document.getElementById('result').textContent = translations[currentLanguage].correct;
       } else {
-        document.getElementById('result').textContent = "Wrong!";
+        document.getElementById('result').textContent = translations[currentLanguage].wrong;
         // Fehlerzähler erhöhen, je nach Modus
         if (currentGameMode === 'countries') {
           countryErrors++;
@@ -641,12 +963,16 @@ const countries = [
     function displayCountries() {
       const countriesList = document.getElementById('countries-list');
       countriesList.innerHTML = '';
-      countries.forEach(country => {
+      
+      // Verwende die richtige Tabelle basierend auf der Sprache
+      const currentCountries = getCountriesData();
+      
+      currentCountries.forEach(country => {
         const li = document.createElement('li');
         li.innerHTML = `
           <img src="${country.flag}" alt="${country.name} Flagge" class="country-flag">
           <p><strong>${country.name}</strong></p>
-          <p>Capital: ${country.capital}</p>
+          <p>${translations[currentLanguage].capital}: ${country.capital}</p>
         `;
         countriesList.appendChild(li);
       });
@@ -655,15 +981,253 @@ const countries = [
 
     function sortCountries() {
       const sortBy = document.getElementById('sort-select').value;
-      countries.sort((a, b) => {
+      const currentCountries = getCountriesData();
+      
+      currentCountries.sort((a, b) => {
         if (sortBy === 'name') {
           return a.name.localeCompare(b.name);
         } else {
           return a.capital.localeCompare(b.capital);
         }
       });
+      
       displayCountries();
     }
   </script>
 </body>
 </html>
+<style>
+  .language-selector {
+    position: relative;
+    user-select: none;
+  }
+  
+  .selected-language {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .dark-mode .selected-language {
+    background-color: #444;
+    color: #fff;
+  }
+  
+  .selected-language:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .dark-mode .selected-language:hover {
+    background-color: #555;
+  }
+  
+  .selected-language img {
+    margin-right: 5px;
+    border-radius: 3px;
+  }
+  
+  .dropdown-arrow {
+    margin-left: 5px;
+    font-size: 10px;
+  }
+  
+  .language-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-top: 5px;
+    display: none;
+    overflow: hidden;
+    z-index: 100;
+    min-width: 120px;
+  }
+  
+  .dark-mode .language-dropdown {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .language-option {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .language-option:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .dark-mode .language-option:hover {
+    background-color: #444;
+  }
+  
+  .language-option img {
+    margin-right: 8px;
+    border-radius: 3px;
+  }
+</style>
+<script>
+  function toggleLanguageDropdown() {
+    const dropdown = document.getElementById('language-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+  
+  function selectLanguage(lang) {
+    const currentLangFlag = document.getElementById('current-lang-flag');
+    const currentLangText = document.getElementById('current-lang-text');
+    
+    if (lang === 'en') {
+      currentLangFlag.src = 'https://flagcdn.com/w20/gb.png';
+      currentLangText.textContent = 'EN';
+    } else if (lang === 'de') {
+      currentLangFlag.src = 'https://flagcdn.com/w20/de.png';
+      currentLangText.textContent = 'DE';
+    }
+    
+    // Dropdown schließen
+    document.getElementById('language-dropdown').style.display = 'none';
+    
+    // Sprache ändern
+    changeLanguage(lang);
+  }
+  
+  // Klick außerhalb des Dropdowns schließt es
+  document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('language-dropdown');
+    const selector = document.querySelector('.language-selector');
+    
+    if (dropdown.style.display === 'block' && !selector.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+  
+  // Initialisiere die Sprachanzeige beim Laden
+  document.addEventListener('DOMContentLoaded', function() {
+    // Setze die Standardsprache auf Englisch
+    selectLanguage('en');
+  });
+</script>
+<style>
+  /* Sortier-Dropdown Styling */
+  .sort-selector {
+    position: relative;
+    user-select: none;
+    margin: 15px auto;
+    width: 200px;
+  }
+  
+  .selected-sort {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 8px 15px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .dark-mode .selected-sort {
+    background-color: #444;
+    color: #fff;
+  }
+  
+  .selected-sort:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .dark-mode .selected-sort:hover {
+    background-color: #555;
+  }
+  
+  .sort-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-top: 5px;
+    display: none;
+    overflow: hidden;
+    z-index: 100;
+  }
+  
+  .dark-mode .sort-dropdown {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .sort-option {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .sort-option:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .dark-mode .sort-option:hover {
+    background-color: #444;
+  }
+</style>
+<script>
+  // Füge diese Funktionen am Ende der Datei hinzu, direkt nach dem letzten </style> Tag
+  
+  function toggleSortDropdown() {
+    const dropdown = document.getElementById('sort-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+  
+  function selectSortOption(sortBy) {
+    const currentSortText = document.getElementById('current-sort-text');
+    
+    if (sortBy === 'name') {
+      currentSortText.textContent = translations[currentLanguage].sortByCountry;
+    } else if (sortBy === 'capital') {
+      currentSortText.textContent = translations[currentLanguage].sortByCapital;
+    }
+    
+    // Dropdown schließen
+    document.getElementById('sort-dropdown').style.display = 'none';
+    
+    // Sortierung anwenden
+    const currentCountries = getCountriesData();
+    
+    currentCountries.sort((a, b) => {
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name);
+      } else {
+        return a.capital.localeCompare(b.capital);
+      }
+    });
+    
+    displayCountries();
+    updateCountriesStyle();
+  }
+  
+  // Klick außerhalb des Sortier-Dropdowns schließt es
+  document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('sort-dropdown');
+    const selector = document.querySelector('.sort-selector');
+    
+    if (dropdown && dropdown.style.display === 'block' && selector && !selector.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+</script>
