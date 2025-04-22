@@ -536,6 +536,7 @@ const countries = [
     function setNewCapital() {
       currentData = getRandomData(countries);
       document.getElementById('flag').src = currentData.flag;
+      document.getElementById('info').textContent = `Country: ${currentData.name}`;
 
       let options = document.querySelectorAll('.option');
       let correctOption = Math.floor(Math.random() * options.length);
@@ -553,7 +554,6 @@ const countries = [
         }
       });
 
-      document.getElementById('info').textContent = '';
       document.getElementById('result').textContent = '';
     }
 
